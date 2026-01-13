@@ -1,0 +1,30 @@
+{
+  "name": "videoeditorwebapp",
+  "version": "1.0.0",
+  "description": "A modern, browser-based video editor with chroma key (green screen)",
+  "keywords": [
+    "editor",
+    "video",
+    "editor",
+    "chroma",
+    "key",
+    "green",
+    "screen"
+  ],
+  "homepage": "https://github.com/souzamonteiro/videoeditorwebapp#readme",
+  "bugs": {
+    "url": "https://github.com/souzamonteiro/videoeditorwebapp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/souzamonteiro/videoeditorwebapp.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Roberto Luiz Souza Monteiro",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  }
+}
