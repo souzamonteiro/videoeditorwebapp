@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a2a6c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Video Editor Web App</title>
+    <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --danger: #ef476f;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #adb5bd;
+            --dark-gray: #495057;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 10px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .editor-wrapper {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--dark);
+            color: white;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a08a1;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gray);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Video Preview Area */
+        .video-section {
+            flex: 2;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-container {
+            background: black;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            flex: 1;
+            position: relative;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden initially */
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-placeholder:hover {
+            background: linear-gradient(45deg, #16213e, #0f3460);
+            transform: scale(1.02);
+        }
+
+        .video-placeholder i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .video-placeholder h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .video-placeholder p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            text-align: center;
+        }
+
+        .upload-instructions {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .upload-instructions ul {
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .upload-instructions li {
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--border-radius);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: var(--dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .control-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .time-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            background: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Controls Panel */
+        .controls-section {
+            flex: 1;
+            background: var(--light);
+            padding: 20px;
+            border-left: 1px solid #e0e0e0;
+            overflow-y: auto;
+            min-width: 300px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+            color: var(--dark);
+        }
+
+        .panel-title i {
+            color: var(--primary);
+        }
+
+        /* Trim Controls */
+        .trim-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .trim-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trim-input-group label {
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .trim-time {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 80px;
+        }
+
+        .trim-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Chroma Key Panel */
+        .chroma-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chroma-preview {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .chroma-color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+        }
+
+        .chroma-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .chroma-input-group label {
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .color-picker-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Export Panel */
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .format-select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .format-select:focus {
+            border-color: var(--primary);
+        }
+
+        .quality-slider {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quality-label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        /* Timeline */
+        .timeline-section {
+            padding: 20px;
+            background: var(--light);
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .timeline-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .timeline-track {
+            height: 80px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .timeline-frames {
+            display: flex;
+            height: 100%;
+        }
+
+        .timeline-frame {
+            flex: 1;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(180deg, #2d3047, #1a1a2e);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(67, 97, 238, 0.1) 50%, transparent 60%);
+            animation: shimmer 2s infinite linear;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            z-index: 10;
+        }
+
+        .marker-in {
+            left: 25%;
+            background: var(--success);
+        }
+
+        .marker-out {
+            left: 75%;
+            background: var(--danger);
+        }
+
+        .timeline-playhead {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--warning);
+            z-index: 11;
+            transition: left 0.1s linear;
+        }
+
+        .timeline-playhead::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -8px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid var(--warning);
+        }
+
+        .trim-range {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            background: rgba(6, 214, 160, 0.2);
+            border-left: 2px solid var(--success);
+            border-right: 2px solid var(--danger);
+            z-index: 9;
+        }
+
+        /* Progress Overlay */
+        .progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .progress-content {
+            background: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            padding: 10px 25px;
+            background: var(--dark);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .new-project-btn {
+            background: red;
+            color: white;
+        }
+
+        .new-project-btn:hover {
+            background: white;
+            color: red;
+        }
+
+        /* File upload button in header */
+        .upload-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .upload-btn:hover {
+            background: #05b587;
+        }
+
+        .help-btn {
+            background: grey;
+            color: white;
+        }
+
+        .help-btn:hover {
+            background: white;
+            color: grey;
+        }
+
+        /* Animations */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .controls-section {
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+            
+            .video-placeholder i {
+                font-size: 3.5rem;
+            }
+            
+            .video-placeholder h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .video-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .video-placeholder i {
+                font-size: 3rem;
+            }
+            
+            .video-placeholder h3 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="editor-wrapper">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-film"></i>
+                    <span>Video Editor Web App</span>
+                </div>
+                <div class="header-controls">
+                    <button class="btn new-project-btn" id="newProjectBtn">
+                        <i class="fas fa-plus"></i> New Project
+                    </button>
+                    <button class="btn upload-btn" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload Video
+                    </button>
+                    <button class="btn btn-primary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn help-btn" id="helpBtn">
+                        <i class="fas fa-question-circle"></i> Help
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Video Preview Section -->
+                <div class="video-section">
+                    <div class="video-container">
+                        <video id="videoPlayer"></video> <!-- Removed controls attribute -->
+                        <div class="video-placeholder" id="videoPlaceholder">
+                            <i class="fas fa-cloud-upload-alt pulse"></i>
+                            <h3>Upload Your Video</h3>
+                            <p>Click here or use the upload button above</p>
+                            
+                            <div class="upload-instructions">
+                                <p><strong>Supported formats:</strong></p>
+                                <ul>
+                                    <li>MP4, WebM, MOV, AVI</li>
+                                    <li>Maximum file size: 2GB</li>
+                                    <li>Drag & drop supported</li>
+                                    <li>Trim, cut, and export easily</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="video-controls">
+                        <div class="control-group">
+                            <button class="control-btn" id="playBtn" title="Play/Pause (Space)" disabled>
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="control-btn" id="rewindBtn" title="Rewind 5s" disabled>
+                                <i class="fas fa-backward"></i>
+                            </button>
+                            <button class="control-btn" id="forwardBtn" title="Forward 5s" disabled>
+                                <i class="fas fa-forward"></i>
+                            </button>
+                            <button class="control-btn" id="muteBtn" title="Mute/Unmute (M)" disabled>
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="time-display">
+                            <span id="currentTime">00:00</span> / <span id="durationTime">00:00</span>
+                        </div>
+                        
+                        <div class="control-group">
+                            <button class="control-btn" id="markInBtn" title="Mark In Point (I)" disabled>
+                                <i class="fas fa-step-backward"></i>
+                            </button>
+                            <button class="control-btn" id="markOutBtn" title="Mark Out Point (O)" disabled>
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                            <button class="control-btn" id="cropBtn" title="Crop Tool (C)" disabled>
+                                <i class="fas fa-crop"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls Panel -->
+                <div class="controls-section">
+                    <!-- Trim Panel -->
+                    <div class="panel">
+                        <div class="panel-title">
+                            <i class="fas fa-cut"></i>
+                            <h3>Trim Video</h3>
+                        </div>
+                        <div class="trim-controls">
+                            <div class="trim-input-group">
+                                <label>Start:</label>
+                                <input type="range" id="trimStart" min="0" max="100" value="0" disabled>
+                                <span class="trim-time" id="trimStartTime">00:00</span>
+                            </div>
+                            <div class="trim-input-group">
+                                <label>End:</label>
+                                <input type="range" id="trimEnd" min="0" max="100" value="100" disabled>
+                                <span class="trim-time" id="trimEndTime">00:00</span>
+                            </div>
+                            <div class="trim-buttons">
+                                <button class="btn btn-outline" id="setInBtn" disabled>
+                                    <i class="fas fa-arrow-left"></i> Set In
+                                </button>
+                                <button class="btn btn-outline" id="setOutBtn" disabled>
+                                    <i class="fas fa-arrow-right"></i> Set Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chroma Key Panel -->
+                    <div class="panel">
+                        <div class="panel-title">
+                            <i class="fas fa-magic"></i>
+                            <h3>Chroma Key (Green Screen)</h3>
+                        </div>
+                        <div class="chroma-controls">
+                            <div class="chroma-input-group">
+                                <label>Background Image:</label>
+                                <input type="file" id="bgImageInput" accept="image/*" style="display: none;">
+                                <button class="btn btn-outline" id="bgImageBtn">
+                                    <i class="fas fa-image"></i> Select Image
+                                </button>
+                            </div>
+                            
+                            <div class="chroma-preview" id="bgImagePreview" style="display: none;">
+                                <span>Preview:</span>
+                                <img id="bgPreviewImg" src="" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                <button class="btn btn-outline" id="removeBgBtn" style="padding: 4px 8px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="chroma-input-group">
+                                <label>Chroma Color:</label>
+                                <input type="color" id="chromaColor" value="#00ff00" class="color-picker">
+                                <span id="chromaColorHex">#00FF00</span>
+                            </div>
+                            
+                            <div class="chroma-input-group">
+                                <label>Sensitivity:</label>
+                                <input type="range" id="chromaSensitivity" min="1" max="100" value="30">
+                                <span id="sensitivityValue">30</span>
+                            </div>
+                            
+                            <div class="chroma-input-group">
+                                <label>Smoothness:</label>
+                                <input type="range" id="chromaSmoothness" min="1" max="100" value="50">
+                                <span id="smoothnessValue">50</span>
+                            </div>
+                            
+                            <div class="chroma-buttons">
+                                <button class="btn btn-outline" id="toggleChromaBtn">
+                                    <i class="fas fa-eye"></i> Toggle Preview
+                                </button>
+                                <button class="btn btn-secondary" id="autoDetectBtn">
+                                    <i class="fas fa-crosshairs"></i> Auto Detect
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Panel -->
+                    <div class="panel">
+                        <div class="panel-title">
+                            <i class="fas fa-file-export"></i>
+                            <h3>Export Settings</h3>
+                        </div>
+                        <div class="export-options">
+                            <div class="format-select-group">
+                                <label>Format:</label>
+                                <select class="format-select" id="formatSelect" disabled>
+                                    <option value="mp4">MP4 (Recommended)</option>
+                                    <option value="webm">WebM</option>
+                                    <option value="mov">MOV</option>
+                                    <option value="gif">Animated GIF</option>
+                                </select>
+                            </div>
+                            
+                            <div class="quality-slider">
+                                <div class="quality-label">
+                                    <span>Quality:</span>
+                                    <span id="qualityValue">High</span>
+                                </div>
+                                <input type="range" id="qualitySlider" min="1" max="3" value="3" disabled>
+                            </div>
+                            
+                            <div style="margin-top: 10px;">
+                                <label>Resolution:</label>
+                                <select class="format-select" id="resolutionSelect" disabled>
+                                    <option value="original">Original</option>
+                                    <option value="1080">1080p (Full HD)</option>
+                                    <option value="720">720p (HD)</option>
+                                    <option value="480">480p (SD)</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-top: 10px;">
+                                <label>
+                                    <input type="checkbox" id="applyChromaExport"> Apply Chroma Key
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="panel">
+                        <div class="panel-title">
+                            <i class="fas fa-chart-bar"></i>
+                            <h3>Video Info</h3>
+                        </div>
+                        <div id="videoInfo">
+                            <p style="color: var(--gray); font-style: italic;">Upload a video to see information here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-section">
+                <div class="timeline-container">
+                    <div class="timeline-header">
+                        <h3>Timeline</h3>
+                        <div class="trim-time-display">
+                            Trim: <span id="trimDuration">00:00</span>
+                        </div>
+                    </div>
+                    <div class="timeline-track" id="timelineTrack">
+                        <div class="timeline-frames" id="timelineFrames">
+                            <!-- Timeline frames will be generated here -->
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                            <div class="timeline-frame"></div>
+                        </div>
+                        <div class="timeline-marker marker-in" id="markerIn"></div>
+                        <div class="timeline-marker marker-out" id="markerOut"></div>
+                        <div class="timeline-playhead" id="playhead"></div>
+                        <div class="trim-range" id="trimRange"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span id="fileInfo">No video loaded. Click "Upload Video" to get started.</span>
+                </div>
+                <div class="status-right">
+                    <span id="chromaStatus">Chroma Key: Off</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; text-align: center; color: var(--dark-gray); font-size: 14px; border-top: 1px solid #e0e0e0;">
+        <p style="margin-bottom: 10px;">
+            &copy; 2026 Roberto Luiz Souza Monteiro. All rights reserved.
+        </p>
+        <p style="margin-bottom: 10px;">
+            <a href="https://github.com/souzamonteiro/videoeditorwebapp.git" 
+                target="_blank"
+                style="color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 6px;"
+                onmouseover="this.style.textDecoration='underline'"
+                onmouseout="this.style.textDecoration='none'">
+                <i class="fa-brands fa-github"></i>
+                View source code on GitHub
+            </a>
+        </p>
+        <p style="font-size: 12px; opacity: 0.8;">
+            This project is licensed under the Apache 2.0 License.
+        </p>
+    </div>
+
+    <!-- Progress Overlay -->
+    <div class="progress-overlay" id="progressOverlay">
+        <div class="progress-content">
+            <i class="fas fa-cog fa-spin fa-3x" style="color: var(--primary); margin-bottom: 20px;"></i>
+            <h3 id="progressTitle">Processing Video</h3>
+            <p id="progressMessage">Please wait while we export your video...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressPercent">0%</p>
+            <button class="btn btn-outline" id="cancelBtn" style="margin-top: 20px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- File Input (hidden) -->
+    <input type="file" id="fileInput" accept="video/*" style="display: none;">
+
+    <script>
+        // DOM Elements
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const playBtn = document.getElementById('playBtn');
+        const rewindBtn = document.getElementById('rewindBtn');
+        const forwardBtn = document.getElementById('forwardBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const markInBtn = document.getElementById('markInBtn');
+        const markOutBtn = document.getElementById('markOutBtn');
+        const cropBtn = document.getElementById('cropBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        const newProjectBtn = document.getElementById('newProjectBtn');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationTimeEl = document.getElementById('durationTime');
+        const trimStart = document.getElementById('trimStart');
+        const trimEnd = document.getElementById('trimEnd');
+        const trimStartTime = document.getElementById('trimStartTime');
+        const trimEndTime = document.getElementById('trimEndTime');
+        const setInBtn = document.getElementById('setInBtn');
+        const setOutBtn = document.getElementById('setOutBtn');
+        const timelineTrack = document.getElementById('timelineTrack');
+        const timelineFrames = document.getElementById('timelineFrames');
+        const markerIn = document.getElementById('markerIn');
+        const markerOut = document.getElementById('markerOut');
+        const playhead = document.getElementById('playhead');
+        const trimRange = document.getElementById('trimRange');
+        const progressOverlay = document.getElementById('progressOverlay');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressTitle = document.getElementById('progressTitle');
+        const progressMessage = document.getElementById('progressMessage');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const videoInfo = document.getElementById('videoInfo');
+        const fileInfo = document.getElementById('fileInfo');
+        const trimDuration = document.getElementById('trimDuration');
+        const formatSelect = document.getElementById('formatSelect');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const resolutionSelect = document.getElementById('resolutionSelect');
+        
+        // Chroma Key Elements
+        const bgImageInput = document.getElementById('bgImageInput');
+        const bgImageBtn = document.getElementById('bgImageBtn');
+        const bgImagePreview = document.getElementById('bgImagePreview');
+        const bgPreviewImg = document.getElementById('bgPreviewImg');
+        const removeBgBtn = document.getElementById('removeBgBtn');
+        const chromaColor = document.getElementById('chromaColor');
+        const chromaColorHex = document.getElementById('chromaColorHex');
+        const chromaSensitivity = document.getElementById('chromaSensitivity');
+        const sensitivityValue = document.getElementById('sensitivityValue');
+        const chromaSmoothness = document.getElementById('chromaSmoothness');
+        const smoothnessValue = document.getElementById('smoothnessValue');
+        const toggleChromaBtn = document.getElementById('toggleChromaBtn');
+        const autoDetectBtn = document.getElementById('autoDetectBtn');
+        const applyChromaExport = document.getElementById('applyChromaExport');
+        const chromaStatus = document.getElementById('chromaStatus');
+
+        // State variables
+        let videoDuration = 0;
+        let isPlaying = false;
+        let isMuted = false;
+        let trimStartValue = 0;
+        let trimEndValue = 100;
+        let currentFile = null;
+        let videoUrl = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let audioContext = null;
+        let audioDestination = null;
+        let isAudioContextActive = false;
+        
+        // Chroma Key state
+        let bgImage = null;
+        let bgImageUrl = null;
+        let isChromaEnabled = false;
+        let isChromaPreview = false;
+        let chromaPreviewCanvas = null;
+        let chromaPreviewCtx = null;
+
+        // Initialize
+        function init() {
+            // Event listeners
+            videoPlaceholder.addEventListener('click', () => fileInput.click());
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            videoPlaceholder.addEventListener('dragover', handleDragOver);
+            videoPlaceholder.addEventListener('drop', handleDrop);
+            
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            playBtn.addEventListener('click', togglePlay);
+            rewindBtn.addEventListener('click', () => seek(-5));
+            forwardBtn.addEventListener('click', () => seek(5));
+            muteBtn.addEventListener('click', toggleMute);
+            markInBtn.addEventListener('click', markInPoint);
+            markOutBtn.addEventListener('click', markOutPoint);
+            cropBtn.addEventListener('click', toggleCrop);
+            exportBtn.addEventListener('click', exportVideo);
+            helpBtn.addEventListener('click', showHelp);
+            newProjectBtn.addEventListener('click', startNewProject);
+
+            setInBtn.addEventListener('click', setTrimFromCurrent);
+            setOutBtn.addEventListener('click', setTrimToCurrent);
+            
+            trimStart.addEventListener('input', updateTrimStart);
+            trimEnd.addEventListener('input', updateTrimEnd);
+            
+            qualitySlider.addEventListener('input', updateQualityValue);
+            timelineTrack.addEventListener('click', seekOnTimeline);
+            
+            cancelBtn.addEventListener('click', hideProgress);
+            
+            // Chroma Key event listeners
+            bgImageBtn.addEventListener('click', () => bgImageInput.click());
+            bgImageInput.addEventListener('change', handleBgImageSelect);
+            removeBgBtn.addEventListener('click', removeBgImage);
+            chromaColor.addEventListener('input', updateChromaColor);
+            chromaSensitivity.addEventListener('input', updateSensitivity);
+            chromaSmoothness.addEventListener('input', updateSmoothness);
+            toggleChromaBtn.addEventListener('click', toggleChromaPreview);
+            autoDetectBtn.addEventListener('click', autoDetectChroma);
+            
+            // Video events
+            videoPlayer.addEventListener('loadedmetadata', handleVideoLoaded);
+            videoPlayer.addEventListener('timeupdate', updateTimeDisplay);
+            videoPlayer.addEventListener('play', () => { 
+                isPlaying = true; 
+                updatePlayButton(); 
+            });
+            videoPlayer.addEventListener('pause', () => { 
+                isPlaying = false; 
+                updatePlayButton(); 
+            });
+            videoPlayer.addEventListener('ended', () => { 
+                isPlaying = false; 
+                updatePlayButton(); 
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyPress);
+            
+            // Initial state
+            disableControls();
+            
+            // Update quality display
+            updateQualityValue();
+            updateSensitivity();
+            updateSmoothness();
+            updateChromaColor();
+        }
+
+        // File handling
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            loadVideo(file);
+        }
+
+        function handleBgImageSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Clean up previous URL
+            if (bgImageUrl) {
+                URL.revokeObjectURL(bgImageUrl);
+            }
+            
+            bgImageUrl = URL.createObjectURL(file);
+            bgPreviewImg.src = bgImageUrl;
+            bgImagePreview.style.display = 'flex';
+            
+            // Load background image
+            bgImage = new Image();
+            bgImage.onload = function() {
+                chromaStatus.textContent = 'Chroma Key: Ready';
+                chromaStatus.style.color = 'var(--success)';
+            };
+            bgImage.src = bgImageUrl;
+        }
+
+        function removeBgImage() {
+            if (bgImageUrl) {
+                URL.revokeObjectURL(bgImageUrl);
+            }
+            bgImage = null;
+            bgImageUrl = null;
+            bgImagePreview.style.display = 'none';
+            chromaStatus.textContent = 'Chroma Key: Off';
+            chromaStatus.style.color = 'white';
+            
+            // Turn off chroma preview if active
+            if (isChromaPreview) {
+                toggleChromaPreview();
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            videoPlaceholder.style.transform = 'scale(1.02)';
+            videoPlaceholder.style.boxShadow = '0 0 30px rgba(67, 97, 238, 0.3)';
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            videoPlaceholder.style.transform = 'scale(1)';
+            videoPlaceholder.style.boxShadow = 'none';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            videoPlaceholder.style.transform = 'scale(1)';
+            videoPlaceholder.style.boxShadow = 'none';
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                loadVideo(file);
+            } else {
+                alert('Please drop a valid video file (MP4, WebM, MOV, AVI)');
+            }
+        }
+
+        function loadVideo(file) {
+            // Clean up previous URL
+            if (videoUrl) {
+                URL.revokeObjectURL(videoUrl);
+            }
+            
+            currentFile = file;
+            videoUrl = URL.createObjectURL(file);
+            videoPlayer.src = videoUrl;
+            
+            // Show video player and hide placeholder
+            videoPlayer.style.display = 'block';
+            videoPlaceholder.style.display = 'none';
+            
+            // Enable controls
+            enableControls();
+            
+            // Update file info
+            fileInfo.textContent = `Loaded: ${file.name} (${formatFileSize(file.size)})`;
+            fileInfo.style.color = 'var(--success)';
+            
+            // Load video metadata
+            videoPlayer.load();
+        }
+
+        function handleVideoLoaded() {
+            videoDuration = videoPlayer.duration;
+            durationTimeEl.textContent = formatTime(videoDuration);
+            
+            // Reset trim to full video
+            trimStartValue = 0;
+            trimEndValue = 100;
+            trimStart.value = 0;
+            trimEnd.value = 100;
+            trimStart.max = 100;
+            trimEnd.max = 100;
+            
+            updateTrimTimes();
+            updateTimelineMarkers();
+            updateVideoInfo();
+            
+            // Auto-play the video
+            videoPlayer.play().catch(e => console.log("Autoplay prevented:", e));
+        }
+
+        // Control state management
+        function disableControls() {
+            [playBtn, rewindBtn, forwardBtn, muteBtn, markInBtn, markOutBtn, cropBtn, 
+             setInBtn, setOutBtn, exportBtn, trimStart, trimEnd, formatSelect, 
+             qualitySlider, resolutionSelect].forEach(control => {
+                control.disabled = true;
+            });
+        }
+
+        function enableControls() {
+            [playBtn, rewindBtn, forwardBtn, muteBtn, markInBtn, markOutBtn, cropBtn, 
+             setInBtn, setOutBtn, exportBtn, trimStart, trimEnd, formatSelect, 
+             qualitySlider, resolutionSelect].forEach(control => {
+                control.disabled = false;
+            });
+        }
+
+        // Chroma Key functions
+        function updateChromaColor() {
+            chromaColorHex.textContent = chromaColor.value.toUpperCase();
+        }
+
+        function updateSensitivity() {
+            sensitivityValue.textContent = chromaSensitivity.value;
+        }
+
+        function updateSmoothness() {
+            smoothnessValue.textContent = chromaSmoothness.value;
+        }
+
+        function toggleChromaPreview() {
+            if (!bgImage) {
+                alert('Please select a background image first!');
+                return;
+            }
+            
+            isChromaPreview = !isChromaPreview;
+            
+            if (isChromaPreview) {
+                // Create preview canvas with proper context
+                if (!chromaPreviewCanvas) {
+                    chromaPreviewCanvas = document.createElement('canvas');
+                    chromaPreviewCtx = chromaPreviewCanvas.getContext('2d', { willReadFrequently: true });
+                    chromaPreviewCanvas.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        z-index: 10;
+                    `;
+                    document.querySelector('.video-container').appendChild(chromaPreviewCanvas);
+                }
+                
+                toggleChromaBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
+                toggleChromaBtn.classList.add('active');
+                chromaStatus.textContent = 'Chroma Key: Preview Active';
+                chromaStatus.style.color = 'var(--warning)';
+                
+                startChromaPreview();
+            } else {
+                if (chromaPreviewCanvas) {
+                    chromaPreviewCanvas.remove();
+                    chromaPreviewCanvas = null;
+                    chromaPreviewCtx = null;
+                }
+                
+                toggleChromaBtn.innerHTML = '<i class="fas fa-eye"></i> Show Preview';
+                toggleChromaBtn.classList.remove('active');
+                chromaStatus.textContent = 'Chroma Key: Ready';
+                chromaStatus.style.color = 'var(--success)';
+            }
+        }
+
+        function startChromaPreview() {
+            if (!isChromaPreview || !chromaPreviewCanvas) return;
+            
+            // Set canvas size to match video
+            chromaPreviewCanvas.width = videoPlayer.videoWidth || 1280;
+            chromaPreviewCanvas.height = videoPlayer.videoHeight || 720;
+            
+            // Create context with willReadFrequently
+            chromaPreviewCtx = chromaPreviewCanvas.getContext('2d', { willReadFrequently: true });
+            
+            function drawFrame() {
+                if (!isChromaPreview || !chromaPreviewCanvas) return;
+                
+                try {
+                    // Draw current video frame
+                    chromaPreviewCtx.drawImage(videoPlayer, 0, 0, chromaPreviewCanvas.width, chromaPreviewCanvas.height);
+                    
+                    // Apply chroma key effect
+                    applyChromaKeyEffect(chromaPreviewCtx);
+                    
+                    // Continue animation
+                    requestAnimationFrame(drawFrame);
+                } catch (error) {
+                    console.error('Chroma preview error:', error);
+                }
+            }
+            
+            drawFrame();
+        }
+
+        function applyChromaKeyEffect(ctx) {
+            const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const data = imageData.data;
+            
+            // Parse chroma color
+            const chromaR = parseInt(chromaColor.value.slice(1, 3), 16);
+            const chromaG = parseInt(chromaColor.value.slice(3, 5), 16);
+            const chromaB = parseInt(chromaColor.value.slice(5, 7), 16);
+            
+            const sensitivity = parseInt(chromaSensitivity.value) / 100;
+            const smoothness = parseInt(chromaSmoothness.value) / 100;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Calculate color difference
+                const diff = Math.sqrt(
+                    Math.pow(r - chromaR, 2) + 
+                    Math.pow(g - chromaG, 2) + 
+                    Math.pow(b - chromaB, 2)
+                ) / 441.67; // Normalize to 0-1 (441.67 is max possible difference)
+                
+                // Apply chroma key with smooth transition
+                if (diff < sensitivity) {
+                    const alpha = Math.min(1, (diff / sensitivity) * (1 + smoothness));
+                    data[i + 3] = alpha * 255; // Set alpha based on difference
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Draw background image if chroma key is applied
+            if (bgImage) {
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.drawImage(bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.globalCompositeOperation = 'source-over';
+            }
+        }
+
+        function autoDetectChroma() {
+            if (!videoPlayer.videoWidth) {
+                alert('Please play the video first to detect chroma color');
+                return;
+            }
+            
+            // Create temporary canvas to analyze video frame
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = videoPlayer.videoWidth;
+            tempCanvas.height = videoPlayer.videoHeight;
+            
+            tempCtx.drawImage(videoPlayer, 0, 0);
+            
+            // Sample color from center of frame (common green screen area)
+            const x = Math.floor(tempCanvas.width / 2);
+            const y = Math.floor(tempCanvas.height / 2);
+            const pixelData = tempCtx.getImageData(x, y, 1, 1).data;
+            
+            // Convert to hex
+            const hexColor = `#${((1 << 24) + (pixelData[0] << 16) + (pixelData[1] << 8) + pixelData[2]).toString(16).slice(1)}`;
+            
+            chromaColor.value = hexColor;
+            updateChromaColor();
+            
+            alert(`Auto-detected chroma color: ${hexColor}`);
+        }
+
+        
+        // Export with chroma key support
+        function exportWithChromaKey(startTime, endTime) {
+            recordedChunks = [];
+            
+            // Create canvas for chroma key processing
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true }); // CORREÇÃO IMPORTANTE
+            
+            // Set canvas dimensions
+            canvas.width = videoPlayer.videoWidth || 1280;
+            canvas.height = videoPlayer.videoHeight || 720;
+            
+            // Create audio context
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioContextActive = true;
+            } catch (e) {
+                console.error('AudioContext not supported:', e);
+                exportVideoOnlyWithChroma(startTime, endTime);
+                return;
+            }
+            
+            audioDestination = audioContext.createMediaStreamDestination();
+            
+            // Create video stream from canvas
+            const videoStream = canvas.captureStream(30);
+            
+            // Create audio stream - TENTATIVA MELHORADA
+            let audioStream = null;
+            try {
+                if (videoPlayer.captureStream) {
+                    audioStream = videoPlayer.captureStream();
+                } else {
+                    const source = audioContext.createMediaElementSource(videoPlayer);
+                    source.connect(audioContext.destination);
+                    const dest = audioContext.createMediaStreamDestination();
+                    source.connect(dest);
+                    audioStream = dest.stream;
+                }
+            } catch (error) {
+                console.error('Audio capture error:', error);
+                exportVideoOnlyWithChroma(startTime, endTime);
+                return;
+            }
+            
+            if (!audioStream || audioStream.getAudioTracks().length === 0) {
+                console.log('Audio capture not supported. Exporting video only.');
+                exportVideoOnlyWithChroma(startTime, endTime);
+                return;
+            }
+            
+            // Combine streams
+            const combinedStream = new MediaStream([
+                ...videoStream.getVideoTracks(),
+                ...audioStream.getAudioTracks()
+            ]);
+            
+            // Configure MediaRecorder
+            const options = {
+                mimeType: 'video/webm;codecs=vp9,opus',
+                videoBitsPerSecond: qualitySlider.value * 1000000
+            };
+            
+            try {
+                mediaRecorder = new MediaRecorder(combinedStream, options);
+            } catch (e) {
+                console.error('MediaRecorder error:', e);
+                // Try without audio
+                exportVideoOnlyWithChroma(startTime, endTime);
+                return;
+            }
+            
+            mediaRecorder.ondataavailable = handleDataAvailable;
+            mediaRecorder.onstop = handleExportComplete;
+            
+            // Start capturing
+            mediaRecorder.start();
+            
+            // Set video to start time and play
+            videoPlayer.currentTime = startTime;
+            videoPlayer.play();
+            
+            let lastTime = Date.now();
+            let isCapturing = true;
+            
+            function captureFrame() {
+                if (!isCapturing || videoPlayer.currentTime >= endTime || videoPlayer.paused) {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    return;
+                }
+                
+                try {
+                    // Draw video frame
+                    ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+                    
+                    // Apply chroma key effect
+                    applyChromaKeyEffectForExport(ctx);
+                    
+                    // Update progress
+                    const progress = ((videoPlayer.currentTime - startTime) / (endTime - startTime)) * 100;
+                    progressFill.style.width = `${Math.min(progress, 100)}%`;
+                    progressPercent.textContent = `${Math.min(Math.round(progress), 100)}%`;
+                    
+                    // Calculate next frame time
+                    const now = Date.now();
+                    const elapsed = now - lastTime;
+                    const targetInterval = 1000 / 30;
+                    
+                    setTimeout(captureFrame, Math.max(0, targetInterval - elapsed));
+                    lastTime = now;
+                } catch (error) {
+                    console.error('Error capturing frame:', error);
+                    isCapturing = false;
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }
+            }
+            
+            setTimeout(captureFrame, 100);
+            
+            // Stop capturing when video reaches end time
+            const checkEndTime = setInterval(() => {
+                if (videoPlayer.currentTime >= endTime) {
+                    clearInterval(checkEndTime);
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    videoPlayer.pause();
+                }
+            }, 100);
+        }
+
+        function exportVideoOnlyWithChroma(startTime, endTime) {
+            recordedChunks = [];
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true }); // CORREÇÃO
+            
+            canvas.width = videoPlayer.videoWidth || 1280;
+            canvas.height = videoPlayer.videoHeight || 720;
+            
+            const stream = canvas.captureStream(30);
+            
+            const options = {
+                mimeType: 'video/webm;codecs=vp9',
+                videoBitsPerSecond: qualitySlider.value * 1000000
+            };
+            
+            try {
+                mediaRecorder = new MediaRecorder(stream, options);
+            } catch (e) {
+                console.error('MediaRecorder error:', e);
+                fallbackExport();
+                return;
+            }
+            
+            mediaRecorder.ondataavailable = handleDataAvailable;
+            mediaRecorder.onstop = handleExportComplete;
+            
+            mediaRecorder.start();
+            videoPlayer.currentTime = startTime;
+            videoPlayer.play();
+            
+            let lastTime = Date.now();
+            let isCapturing = true;
+            
+            function captureFrame() {
+                if (!isCapturing || videoPlayer.currentTime >= endTime || videoPlayer.paused) {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    return;
+                }
+                
+                try {
+                    ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+                    
+                    // Apply chroma key effect
+                    applyChromaKeyEffectForExport(ctx);
+                    
+                    const progress = ((videoPlayer.currentTime - startTime) / (endTime - startTime)) * 100;
+                    progressFill.style.width = `${Math.min(progress, 100)}%`;
+                    progressPercent.textContent = `${Math.min(Math.round(progress), 100)}%`;
+                    
+                    const now = Date.now();
+                    const elapsed = now - lastTime;
+                    const targetInterval = 1000 / 30;
+                    
+                    setTimeout(captureFrame, Math.max(0, targetInterval - elapsed));
+                    lastTime = now;
+                } catch (error) {
+                    console.error('Error capturing frame:', error);
+                    isCapturing = false;
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }
+            }
+
+            function applyChromaKeyEffectForExport(ctx) {
+                if (!bgImage || !applyChromaExport.checked) {
+                    return; // Não aplicar chroma key se não estiver habilitado
+                }
+                
+                const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+                const data = imageData.data;
+                
+                // Parse chroma color
+                const chromaR = parseInt(chromaColor.value.slice(1, 3), 16);
+                const chromaG = parseInt(chromaColor.value.slice(3, 5), 16);
+                const chromaB = parseInt(chromaColor.value.slice(5, 7), 16);
+                
+                const sensitivity = parseInt(chromaSensitivity.value) / 100 * 0.7; // Ajuste de sensibilidade
+                const smoothness = parseInt(chromaSmoothness.value) / 100;
+                
+                // Algoritmo otimizado para performance
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    
+                    // Cálculo mais eficiente de diferença de cor
+                    const diff = Math.abs(r - chromaR) + Math.abs(g - chromaG) + Math.abs(b - chromaB);
+                    const normalizedDiff = diff / 765; // 255 * 3 = 765 (max difference)
+                    
+                    if (normalizedDiff < sensitivity) {
+                        const alpha = Math.min(1, (normalizedDiff / sensitivity) * (1 + smoothness));
+                        data[i + 3] = Math.floor(alpha * 255);
+                    }
+                }
+                
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Draw background image
+                if (bgImage) {
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.drawImage(bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+            }
+            
+            setTimeout(captureFrame, 100);
+            
+            const checkEndTime = setInterval(() => {
+                if (videoPlayer.currentTime >= endTime) {
+                    clearInterval(checkEndTime);
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    videoPlayer.pause();
+                }
+            }, 100);
+        }
+
+        function exportVideoOnly(startTime, endTime) {
+            recordedChunks = [];
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            canvas.width = videoPlayer.videoWidth || 1280;
+            canvas.height = videoPlayer.videoHeight || 720;
+            
+            const stream = canvas.captureStream(30);
+            
+            const options = {
+                mimeType: 'video/webm;codecs=vp9',
+                videoBitsPerSecond: qualitySlider.value * 1000000
+            };
+            
+            try {
+                mediaRecorder = new MediaRecorder(stream, options);
+            } catch (e) {
+                console.error('MediaRecorder error:', e);
+                fallbackExport();
+                return;
+            }
+            
+            mediaRecorder.ondataavailable = handleDataAvailable;
+            mediaRecorder.onstop = handleExportComplete;
+            
+            mediaRecorder.start();
+            videoPlayer.currentTime = startTime;
+            videoPlayer.play();
+            
+            let lastTime = Date.now();
+            let isCapturing = true;
+            
+            function captureFrame() {
+                if (!isCapturing || videoPlayer.currentTime >= endTime || videoPlayer.paused) {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    return;
+                }
+                
+                try {
+                    ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+                    
+                    const progress = ((videoPlayer.currentTime - startTime) / (endTime - startTime)) * 100;
+                    progressFill.style.width = `${Math.min(progress, 100)}%`;
+                    progressPercent.textContent = `${Math.min(Math.round(progress), 100)}%`;
+                    
+                    const now = Date.now();
+                    const elapsed = now - lastTime;
+                    const targetInterval = 1000 / 30;
+                    
+                    setTimeout(captureFrame, Math.max(0, targetInterval - elapsed));
+                    lastTime = now;
+                } catch (error) {
+                    console.error('Error capturing frame:', error);
+                    isCapturing = false;
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }
+            }
+            
+            setTimeout(captureFrame, 100);
+            
+            const checkEndTime = setInterval(() => {
+                if (videoPlayer.currentTime >= endTime) {
+                    clearInterval(checkEndTime);
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    videoPlayer.pause();
+                }
+            }, 100);
+        }
+
+        function exportVideo() {
+            if (!currentFile) {
+                alert('Please load a video first');
+                return;
+            }
+            
+            // Calculate actual trim times
+            const startTime = (trimStartValue / 100) * videoDuration;
+            const endTime = (trimEndValue / 100) * videoDuration;
+            const duration = endTime - startTime;
+            
+            if (duration <= 0) {
+                alert('Trim duration must be greater than 0 seconds');
+                return;
+            }
+            
+            // Show progress overlay
+            progressTitle.textContent = 'Exporting Video';
+            progressMessage.textContent = 'Processing and trimming your video...';
+            progressFill.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressOverlay.style.display = 'flex';
+            
+            // Use appropriate export method
+            if (bgImage && applyChromaExport.checked) {
+                exportWithChromaKey(startTime, endTime);
+            } else {
+                exportWithAudio(startTime, endTime);
+            }
+        }
+
+        // Resto das funções que estavam faltando
+        function toggleCrop() {
+            alert('Crop tool activated!\n\nDrag the corners of the video to crop it.\nPress Enter to apply or Escape to cancel.\n\nNote: This is a demo feature. In a full implementation, visual crop handles would appear.');
+            cropBtn.classList.toggle('active');
+        }
+
+        function markInPoint() {
+            if (videoDuration > 0) {
+                const percentage = (videoPlayer.currentTime / videoDuration) * 100;
+                trimStart.value = percentage;
+                updateTrimStart();
+            }
+        }
+
+        function markOutPoint() {
+            if (videoDuration > 0) {
+                const percentage = (videoPlayer.currentTime / videoDuration) * 100;
+                trimEnd.value = percentage;
+                updateTrimEnd();
+            }
+        }
+
+        function setTrimFromCurrent() {
+            trimStart.value = (videoPlayer.currentTime / videoDuration) * 100;
+            updateTrimStart();
+        }
+
+        function setTrimToCurrent() {
+            trimEnd.value = (videoPlayer.currentTime / videoDuration) * 100;
+            updateTrimEnd();
+        }
+
+        function updateTrimStart() {
+            trimStartValue = parseInt(trimStart.value);
+            if (trimStartValue >= trimEndValue) {
+                trimStartValue = trimEndValue - 1;
+                trimStart.value = trimStartValue;
+            }
+            updateTrimTimes();
+            updateTimelineMarkers();
+        }
+
+        function updateTrimEnd() {
+            trimEndValue = parseInt(trimEnd.value);
+            if (trimEndValue <= trimStartValue) {
+                trimEndValue = trimStartValue + 1;
+                trimEnd.value = trimEndValue;
+            }
+            updateTrimTimes();
+            updateTimelineMarkers();
+        }
+
+        function updateTrimTimes() {
+            const startTime = (trimStartValue / 100) * videoDuration;
+            const endTime = (trimEndValue / 100) * videoDuration;
+            
+            trimStartTime.textContent = formatTime(startTime);
+            trimEndTime.textContent = formatTime(endTime);
+            trimDuration.textContent = formatTime(endTime - startTime);
+        }
+
+        function updateTimelineMarkers() {
+            markerIn.style.left = `${trimStartValue}%`;
+            markerOut.style.left = `${trimEndValue}%`;
+            trimRange.style.left = `${trimStartValue}%`;
+            trimRange.style.width = `${trimEndValue - trimStartValue}%`;
+        }
+
+        function seekOnTimeline(e) {
+            if (!videoDuration) return;
+            
+            const rect = timelineTrack.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percentage = (x / rect.width) * 100;
+            const time = (percentage / 100) * videoDuration;
+            
+            videoPlayer.currentTime = Math.max(0, Math.min(videoDuration, time));
+        }
+
+        // Audio export functions
+        function exportWithAudio(startTime, endTime) {
+            recordedChunks = [];
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            canvas.width = videoPlayer.videoWidth || 1280;
+            canvas.height = videoPlayer.videoHeight || 720;
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioContextActive = true;
+            } catch (e) {
+                console.error('AudioContext not supported:', e);
+                exportVideoOnly(startTime, endTime);
+                return;
+            }
+            
+            audioDestination = audioContext.createMediaStreamDestination();
+            
+            const videoStream = canvas.captureStream(30);
+            
+            let audioStream = null;
+            try {
+                if (videoPlayer.captureStream) {
+                    audioStream = videoPlayer.captureStream();
+                } else {
+                    const source = audioContext.createMediaElementSource(videoPlayer);
+                    source.connect(audioContext.destination);
+                    const dest = audioContext.createMediaStreamDestination();
+                    source.connect(dest);
+                    audioStream = dest.stream;
+                }
+            } catch (error) {
+                console.error('Audio capture error:', error);
+                exportVideoOnly(startTime, endTime);
+                return;
+            }
+            
+            if (!audioStream || audioStream.getAudioTracks().length === 0) {
+                console.log('Audio capture failed. Exporting video only.');
+                exportVideoOnly(startTime, endTime);
+                return;
+            }
+            
+            const combinedStream = new MediaStream([
+                ...videoStream.getVideoTracks(),
+                ...audioStream.getAudioTracks()
+            ]);
+            
+            const options = {
+                mimeType: 'video/webm;codecs=vp9,opus',
+                videoBitsPerSecond: qualitySlider.value * 1000000
+            };
+            
+            try {
+                mediaRecorder = new MediaRecorder(combinedStream, options);
+            } catch (e) {
+                console.error('MediaRecorder error:', e);
+                exportVideoOnly(startTime, endTime);
+                return;
+            }
+            
+            mediaRecorder.ondataavailable = handleDataAvailable;
+            mediaRecorder.onstop = handleExportComplete;
+            
+            mediaRecorder.start();
+            videoPlayer.currentTime = startTime;
+            videoPlayer.play();
+            
+            let lastTime = Date.now();
+            let isCapturing = true;
+            
+            function captureFrame() {
+                if (!isCapturing || videoPlayer.currentTime >= endTime || videoPlayer.paused) {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    return;
+                }
+                
+                try {
+                    ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
+                    
+                    const progress = ((videoPlayer.currentTime - startTime) / (endTime - startTime)) * 100;
+                    progressFill.style.width = `${Math.min(progress, 100)}%`;
+                    progressPercent.textContent = `${Math.min(Math.round(progress), 100)}%`;
+                    
+                    const now = Date.now();
+                    const elapsed = now - lastTime;
+                    const targetInterval = 1000 / 30;
+                    
+                    setTimeout(captureFrame, Math.max(0, targetInterval - elapsed));
+                    lastTime = now;
+                } catch (error) {
+                    console.error('Error capturing frame:', error);
+                    isCapturing = false;
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }
+            }
+            
+            setTimeout(captureFrame, 100);
+            
+            const checkEndTime = setInterval(() => {
+                if (videoPlayer.currentTime >= endTime) {
+                    clearInterval(checkEndTime);
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                    isCapturing = false;
+                    videoPlayer.pause();
+                }
+            }, 100);
+        }
+
+        function captureAudioFromVideo() {
+            try {
+                // Método moderno
+                if (videoPlayer.captureStream) {
+                    const stream = videoPlayer.captureStream();
+                    const audioTracks = stream.getAudioTracks();
+                    if (audioTracks.length > 0) {
+                        return new MediaStream(audioTracks);
+                    }
+                }
+                
+                // Método alternativo com Web Audio API
+                if (audioContext) {
+                    const source = audioContext.createMediaElementSource(videoPlayer);
+                    const dest = audioContext.createMediaStreamDestination();
+                    source.connect(dest);
+                    source.connect(audioContext.destination); // Para ouvir o áudio
+                    return dest.stream;
+                }
+            } catch (error) {
+                console.error('Audio capture error:', error);
+            }
+            return null;
+        }
+
+        function exportVideo() {
+            if (!currentFile) {
+                alert('Please load a video first');
+                return;
+            }
+            
+            // Calculate actual trim times
+            const startTime = (trimStartValue / 100) * videoDuration;
+            const endTime = (trimEndValue / 100) * videoDuration;
+            const duration = endTime - startTime;
+            
+            if (duration <= 0) {
+                alert('Trim duration must be greater than 0 seconds');
+                return;
+            }
+            
+            // Show progress overlay
+            progressTitle.textContent = 'Exporting Video';
+            progressMessage.textContent = bgImage && applyChromaExport.checked ? 
+                'Processing video with chroma key effect...' : 
+                'Processing and trimming your video...';
+            progressFill.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressOverlay.style.display = 'flex';
+            
+            // Use appropriate export method
+            if (bgImage && applyChromaExport.checked) {
+                exportWithChromaKey(startTime, endTime);
+            } else {
+                // Tentar exportação com áudio primeiro
+                exportWithAudio(startTime, endTime);
+            }
+        }
+
+        function captureAudioFromVideo() {
+            try {
+                // Try to capture audio directly from video element
+                if (videoPlayer.captureStream) {
+                    const stream = videoPlayer.captureStream();
+                    return stream.getAudioTracks()[0] ? 
+                           new MediaStream([stream.getAudioTracks()[0]]) : null;
+                }
+                
+                // Alternative method using Web Audio API
+                const source = audioContext.createMediaElementSource(videoPlayer);
+                source.connect(audioContext.destination);
+                
+                // Create a stream destination for audio
+                const dest = audioContext.createMediaStreamDestination();
+                source.connect(dest);
+                
+                return dest.stream;
+            } catch (error) {
+                console.error('Audio capture error:', error);
+                return null;
+            }
+        }
+
+        function handleDataAvailable(event) {
+            if (event.data && event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        }
+
+        function handleExportComplete() {
+            videoPlayer.pause();
+            
+            // Clean up audio resources safely
+            safeAudioContextClose();
+            
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `trimmed_video_${Date.now()}.webm`;
+            
+            // Update UI
+            progressTitle.textContent = 'Export Complete!';
+            progressMessage.textContent = 'Your trimmed video is ready to download.';
+            progressFill.style.width = '100%';
+            progressPercent.textContent = '100%';
+            
+            setTimeout(() => {
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                setTimeout(() => {
+                    hideProgress();
+                    alert('Video exported successfully! Check your downloads folder.');
+                }, 1000);
+            }, 500);
+        }
+
+        function safeAudioContextClose() {
+            if (audioContext && isAudioContextActive) {
+                try {
+                    if (audioContext.state !== 'closed') {
+                        audioContext.close();
+                    }
+                    isAudioContextActive = false;
+                } catch (e) {
+                    console.log('AudioContext already closed');
+                }
+            }
+        }
+
+        function fallbackExport() {
+            progressTitle.textContent = 'Processing Video';
+            progressMessage.textContent = 'Using alternative export method...';
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    const exportDetails = `
+Video Export Details:
+----------------------
+Original File: ${currentFile.name}
+File Size: ${formatFileSize(currentFile.size)}
+Trimmed From: ${trimStartTime.textContent}
+Trimmed To: ${trimEndTime.textContent}
+Trim Duration: ${trimDuration.textContent}
+Export Format: ${formatSelect.options[formatSelect.selectedIndex].text}
+Quality: ${document.getElementById('qualityValue').textContent}
+Resolution: ${resolutionSelect.options[resolutionSelect.selectedIndex].text}
+Export Time: ${new Date().toLocaleString()}
+Note: This browser has limited video export capabilities
+                    `;
+                    
+                    const blob = new Blob([exportDetails], {type: 'text/plain'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `video_export_${Date.now()}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    hideProgress();
+                    alert('Limited export complete. Some browsers require additional permissions for full video export.');
+                }
+                
+                progressFill.style.width = `${progress}%`;
+                progressPercent.textContent = `${Math.round(progress)}%`;
+            }, 200);
+            
+            window.exportInterval = interval;
+        }
+
+        function hideProgress() {
+            if (window.exportInterval) {
+                clearInterval(window.exportInterval);
+            }
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+            safeAudioContextClose();
+            videoPlayer.pause();
+            progressOverlay.style.display = 'none';
+        }
+
+        // Help function
+        function showHelp() {
+            const helpText = `
+VIDEO EDITOR - COMPLETE GUIDE
+
+📁 UPLOADING:
+• Click the "Upload Video" button or drag & drop
+• Supported: MP4, WebM, MOV, AVI (up to 2GB)
+
+🎬 PLAYBACK CONTROLS:
+Space: Play/Pause
+← / → : Seek 1 second
+Shift + ← / → : Seek 10 seconds
+Ctrl + ← / → : Seek 1 minute
+M: Mute/Unmute
+
+✂️ TRIMMING:
+I: Set In Point at current time
+O: Set Out Point at current time
+Drag the sliders in Trim panel
+Click "Set In"/"Set Out" buttons
+
+🎨 CHROMA KEY:
+Select background image and adjust settings
+Use Auto Detect for easy setup
+Toggle preview to see results
+Check "Apply Chroma Key" during export
+
+📊 TIMELINE:
+Click anywhere to seek
+Green marker = In Point
+Red marker = Out Point
+Yellow line = Playhead
+
+🛠️ OTHER CONTROLS:
+C: Toggle Crop Tool
+Ctrl+E: Export Video
+F: Toggle Fullscreen
+
+📤 EXPORT:
+Choose format, quality, resolution
+Click Export button
+Wait for processing
+File will download automatically
+
+🆘 TIPS:
+• Trim before exporting to reduce file size
+• Use keyboard shortcuts for faster editing
+• Save your work regularly
+            `;
+            
+            // Create a modal for better help display
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 2000;
+                padding: 20px;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 30px;
+                border-radius: 15px;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: var(--primary);">Video Editor Help</h2>
+                    <button id="closeHelp" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--dark);">&times;</button>
+                </div>
+                <pre style="white-space: pre-wrap; font-family: inherit; line-height: 1.5; background: var(--light); padding: 20px; border-radius: 8px;">${helpText}</pre>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-primary" id="closeHelpBtn" style="margin-top: 10px;">Got it!</button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Close handlers
+            const closeHelp = () => document.body.removeChild(modal);
+            modalContent.querySelector('#closeHelp').addEventListener('click', closeHelp);
+            modalContent.querySelector('#closeHelpBtn').addEventListener('click', closeHelp);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeHelp();
+            });
+        }
+
+        function startNewProject() {
+            // Check if there's active work
+            if (currentFile || bgImage || trimStartValue !== 0 || trimEndValue !== 100) {
+                if (!confirm('Are you sure you want to start a new project? Any unsaved changes will be lost.')) {
+                    return; // User cancelled
+                }
+            }
+
+            // Stop any ongoing playback or recording
+            videoPlayer.pause();
+            
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+            
+            // Clean up audio resources
+            safeAudioContextClose();
+            
+            // Revoke object URLs to free memory
+            if (videoUrl) {
+                URL.revokeObjectURL(videoUrl);
+                videoUrl = null;
+            }
+            
+            if (bgImageUrl) {
+                URL.revokeObjectURL(bgImageUrl);
+                bgImageUrl = null;
+            }
+            
+            // Reset video player
+            videoPlayer.src = '';
+            videoPlayer.style.display = 'none';
+            
+            // Show placeholder
+            videoPlaceholder.style.display = 'flex';
+            
+            // Reset chroma key preview
+            if (chromaPreviewCanvas) {
+                chromaPreviewCanvas.remove();
+                chromaPreviewCanvas = null;
+                chromaPreviewCtx = null;
+            }
+            
+            // Reset state variables
+            videoDuration = 0;
+            isPlaying = false;
+            isMuted = false;
+            trimStartValue = 0;
+            trimEndValue = 100;
+            currentFile = null;
+            bgImage = null;
+            isChromaPreview = false;
+            
+            // Reset UI elements
+            currentTimeEl.textContent = '00:00';
+            durationTimeEl.textContent = '00:00';
+            trimStart.value = 0;
+            trimEnd.value = 100;
+            trimStartTime.textContent = '00:00';
+            trimEndTime.textContent = '00:00';
+            trimDuration.textContent = '00:00';
+            fileInfo.textContent = 'No video loaded. Click "Upload Video" to get started.';
+            fileInfo.style.color = 'white';
+            chromaStatus.textContent = 'Chroma Key: Off';
+            chromaStatus.style.color = 'white';
+            
+            // Reset chroma key UI
+            bgImagePreview.style.display = 'none';
+            toggleChromaBtn.innerHTML = '<i class="fas fa-eye"></i> Toggle Preview';
+            toggleChromaBtn.classList.remove('active');
+            applyChromaExport.checked = false;
+            
+            // Reset timeline markers
+            updateTimelineMarkers();
+            
+            // Reset video info panel
+            videoInfo.innerHTML = '<p style="color: var(--gray); font-style: italic;">Upload a video to see information here</p>';
+            
+            // Disable controls
+            disableControls();
+            
+            // Show confirmation message
+            showNotification('New project started. Ready for a new video!');
+        }
+
+        // Notification function (add this too)
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--success)' : 'var(--danger)'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Keyboard shortcuts
+        function handleKeyPress(e) {
+            switch(e.key.toLowerCase()) {
+                case ' ':
+                    if (videoPlayer.src) {
+                        e.preventDefault();
+                        togglePlay();
+                    }
+                    break;
+                case 'm':
+                    if (videoPlayer.src) {
+                        toggleMute();
+                    }
+                    break;
+                case 'i':
+                    if (videoPlayer.src) {
+                        markInPoint();
+                    }
+                    break;
+                case 'o':
+                    if (videoPlayer.src) {
+                        markOutPoint();
+                    }
+                    break;
+                case 'c':
+                    if (videoPlayer.src) {
+                        toggleCrop();
+                    }
+                    break;
+                case 'arrowleft':
+                    if (videoPlayer.src) {
+                        e.preventDefault();
+                        if (e.ctrlKey) seek(-60);
+                        else if (e.shiftKey) seek(-10);
+                        else seek(-1);
+                    }
+                    break;
+                case 'arrowright':
+                    if (videoPlayer.src) {
+                        e.preventDefault();
+                        if (e.ctrlKey) seek(60);
+                        else if (e.shiftKey) seek(10);
+                        else seek(1);
+                    }
+                    break;
+                case 'e':
+                    if (e.ctrlKey && videoPlayer.src) {
+                        e.preventDefault();
+                        exportVideo();
+                    }
+                    break;
+                case 'f':
+                    if (videoPlayer.src && document.fullscreenEnabled) {
+                        e.preventDefault();
+                        if (!document.fullscreenElement) {
+                            document.querySelector('.video-container').requestFullscreen();
+                        } else {
+                            document.exitFullscreen();
+                        }
+                    }
+                    break;
+            }
+        }
+
+        // Update video info
+        function updateVideoInfo() {
+            if (videoDuration > 0) {
+                const width = videoPlayer.videoWidth || 1920;
+                const height = videoPlayer.videoHeight || 1080;
+                const resolution = `${width}×${height}`;
+                const aspectRatio = (width / height).toFixed(2);
+                const fps = 30; // This would normally be detected from the video
+                
+                videoInfo.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>Duration:</strong></div><div>${formatTime(videoDuration)}</div>
+                        <div><strong>Resolution:</strong></div><div>${resolution}</div>
+                        <div><strong>Aspect Ratio:</strong></div><div>${aspectRatio}:1</div>
+                        <div><strong>Frame Rate:</strong></div><div>${fps} fps</div>
+                        <div><strong>File Size:</strong></div><div>${formatFileSize(currentFile.size)}</div>
+                        <div><strong>Format:</strong></div><div>${currentFile.type || 'Unknown'}</div>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--light);">
+                        <strong>Trim Selection:</strong> ${trimDuration.textContent} (${(((trimEndValue - trimStartValue) / 100) * 100).toFixed(1)}% of original)
+                    </div>
+                `;
+            }
+        }
+
+        function updatePlayButton() {
+            playBtn.innerHTML = `<i class="fas fa-${isPlaying ? 'pause' : 'play'}"></i>`;
+            playBtn.classList.toggle('active', isPlaying);
+        }
+
+        function updateTimeDisplay() {
+            const current = videoPlayer.currentTime;
+            currentTimeEl.textContent = formatTime(current);
+            
+            // Update playhead position
+            if (videoDuration > 0) {
+                const percentage = (current / videoDuration) * 100;
+                playhead.style.left = `${percentage}%`;
+            }
+        }
+
+        function togglePlay() {
+            if (videoPlayer.paused) {
+                videoPlayer.play();
+            } else {
+                videoPlayer.pause();
+            }
+        }
+
+        function seek(seconds) {
+            videoPlayer.currentTime = Math.max(0, Math.min(videoDuration, videoPlayer.currentTime + seconds));
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            videoPlayer.muted = isMuted;
+            muteBtn.innerHTML = `<i class="fas fa-volume-${isMuted ? 'off' : 'up'}"></i>`;
+            muteBtn.classList.toggle('active', isMuted);
+        }
+
+        function updateQualityValue() {
+            const qualities = ['Low', 'Medium', 'High'];
+            document.getElementById('qualityValue').textContent = qualities[qualitySlider.value - 1];
+        }
+
+        // Utility functions
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return '00:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', init);
+        
+        // Clean up URL on page unload
+        window.addEventListener('beforeunload', () => {
+            if (videoUrl) {
+                URL.revokeObjectURL(videoUrl);
+            }
+            if (bgImageUrl) {
+                URL.revokeObjectURL(bgImageUrl);
+            }
+            safeAudioContextClose();
+        });
+        
+        // Handle drag leave
+        document.addEventListener('dragleave', handleDragLeave);
+        document.addEventListener('dragend', handleDragLeave);
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log('Service Worker successfully registered.'))
+            .catch(err => console.error('Erro SW:', err));
+        }
+    </script>
+</body>
+</html>
