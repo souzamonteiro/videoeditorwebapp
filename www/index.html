@@ -1075,26 +1075,32 @@
         let chromaPreviewCanvas = null;
         let chromaPreviewCtx = null;
 
-        function drawImageProp(ctx, img, x, y, w, h) {
-            const imgRatio = img.width / img.height;
-            const canvasRatio = w / h;
-            let drawWidth, drawHeight, drawX, drawY;
-
-            if (imgRatio > canvasRatio) {
-                // Image is wider than canvas
-                drawHeight = h;
-                drawWidth = drawHeight * imgRatio;
-                drawX = x + (w - drawWidth) / 2;
-                drawY = y;
-            } else {
-                // Image is taller than canvas
-                drawWidth = w;
-                drawHeight = drawWidth / imgRatio;
-                drawX = x;
-                drawY = y + (h - drawHeight) / 2;
+        function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
+            if (arguments.length === 2) {
+                x = y = 0;
+                w = ctx.canvas.width;
+                h = ctx.canvas.height;
             }
-
-            ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+            
+            // Default offsets are center
+            offsetX = typeof offsetX === "number" ? offsetX : 0.5;
+            offsetY = typeof offsetY === "number" ? offsetY : 0.5;
+            
+            // Keep bounds [0.0, 1.0]
+            if (offsetX < 0) offsetX = 0;
+            if (offsetY < 0) offsetY = 0;
+            if (offsetX > 1) offsetX = 1;
+            if (offsetY > 1) offsetY = 1;
+            
+            const iw = img.width || img.videoWidth;
+            const ih = img.height || img.videoHeight;
+            const ratio = Math.min(w / iw, h / ih);
+            const newWidth = iw * ratio;
+            const newHeight = ih * ratio;
+            const newX = x + (w - newWidth) * offsetX;
+            const newY = y + (h - newHeight) * offsetY;
+            
+            ctx.drawImage(img, newX, newY, newWidth, newHeight);
         }
 
         function applyChromaKeyEffectForExport(ctx) {
@@ -1380,6 +1386,8 @@
                     document.querySelector('.video-container').appendChild(chromaPreviewCanvas);
                 }
                 
+                updateCanvasSize();
+                
                 toggleChromaBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Preview';
                 toggleChromaBtn.classList.add('active');
                 chromaStatus.textContent = 'Chroma Key: Preview Active';
@@ -1400,27 +1408,38 @@
             }
         }
 
+        function updateCanvasSize() {
+            if (!chromaPreviewCanvas) return;
+            
+            const videoContainer = document.querySelector('.video-container');
+            const containerRect = videoContainer.getBoundingClientRect();
+            
+            chromaPreviewCanvas.width = containerRect.width;
+            chromaPreviewCanvas.height = containerRect.height;
+            
+            chromaPreviewCtx = chromaPreviewCanvas.getContext('2d', { willReadFrequently: true });
+        }
+
         function startChromaPreview() {
             if (!isChromaPreview || !chromaPreviewCanvas) return;
             
-            // Set canvas size to match video
-            chromaPreviewCanvas.width = videoPlayer.videoWidth || 1280;
-            chromaPreviewCanvas.height = videoPlayer.videoHeight || 720;
-            
-            // Create context with willReadFrequently
-            chromaPreviewCtx = chromaPreviewCanvas.getContext('2d', { willReadFrequently: true });
+            // Garantir que o tamanho está atualizado
+            updateCanvasSize();
             
             function drawFrame() {
                 if (!isChromaPreview || !chromaPreviewCanvas) return;
                 
                 try {
-                    // Draw current video frame
-                    chromaPreviewCtx.drawImage(videoPlayer, 0, 0, chromaPreviewCanvas.width, chromaPreviewCanvas.height);
+                    // CORREÇÃO: Desenhar o vídeo escalado para caber no canvas
+                    chromaPreviewCtx.clearRect(0, 0, chromaPreviewCanvas.width, chromaPreviewCanvas.height);
                     
-                    // Apply chroma key effect
+                    // Desenhar o vídeo mantendo aspect ratio
+                    drawImageProp(chromaPreviewCtx, videoPlayer, 0, 0, chromaPreviewCanvas.width, chromaPreviewCanvas.height);
+                    
+                    // Aplicar chroma key effect
                     applyChromaKeyEffect(chromaPreviewCtx);
                     
-                    // Continue animation
+                    // Continuar animação
                     requestAnimationFrame(drawFrame);
                 } catch (error) {
                     console.error('Chroma preview error:', error);
@@ -1452,21 +1471,20 @@
                     Math.pow(r - chromaR, 2) + 
                     Math.pow(g - chromaG, 2) + 
                     Math.pow(b - chromaB, 2)
-                ) / 441.67; // Normalize to 0-1 (441.67 is max possible difference)
+                ) / 441.67;
                 
                 // Apply chroma key with smooth transition
                 if (diff < sensitivity) {
                     const alpha = Math.min(1, (diff / sensitivity) * (1 + smoothness));
-                    data[i + 3] = alpha * 255; // Set alpha based on difference
+                    data[i + 3] = alpha * 255;
                 }
             }
             
             ctx.putImageData(imageData, 0, 0);
             
-            // Draw background image if chroma key is applied - FIXED VERSION
+            // Draw background image - CORREÇÃO FINAL
             if (bgImage) {
                 ctx.globalCompositeOperation = 'destination-over';
-                // Use the aspect ratio-preserving function instead of direct drawImage
                 drawImageProp(ctx, bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
                 ctx.globalCompositeOperation = 'source-over';
             }
@@ -2598,6 +2616,12 @@ File will download automatically
             safeAudioContextClose();
         });
         
+        window.addEventListener('resize', () => {
+            if (isChromaPreview && chromaPreviewCanvas) {
+                updateCanvasSize();
+            }
+        });
+
         // Handle drag leave
         document.addEventListener('dragleave', handleDragLeave);
         document.addEventListener('dragend', handleDragLeave);
