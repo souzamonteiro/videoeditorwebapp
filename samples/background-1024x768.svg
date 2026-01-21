@@ -1,0 +1,15 @@
+<svg width="1024" height="768" viewBox="0 0 1024 768" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient1024" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#f093fb"/>
+                                <stop offset="100%" stop-color="#f5576c"/>
+                            </linearGradient>
+                            <pattern id="grid1024" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+                            </pattern>
+                        </defs>
+                        <rect width="1024" height="768" fill="url(#bgGradient1024)"/>
+                        <rect width="1024" height="768" fill="url(#grid1024)"/>
+                        <ellipse cx="512" cy="384" rx="120" ry="80" fill="#ffffff" opacity="0.1"/>
+                        <polygon points="512,300 612,484 412,484" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+                    </svg>

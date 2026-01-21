@@ -1423,23 +1423,18 @@
         function startChromaPreview() {
             if (!isChromaPreview || !chromaPreviewCanvas) return;
             
-            // Garantir que o tamanho está atualizado
             updateCanvasSize();
             
             function drawFrame() {
                 if (!isChromaPreview || !chromaPreviewCanvas) return;
                 
                 try {
-                    // CORREÇÃO: Desenhar o vídeo escalado para caber no canvas
                     chromaPreviewCtx.clearRect(0, 0, chromaPreviewCanvas.width, chromaPreviewCanvas.height);
                     
-                    // Desenhar o vídeo mantendo aspect ratio
                     drawImageProp(chromaPreviewCtx, videoPlayer, 0, 0, chromaPreviewCanvas.width, chromaPreviewCanvas.height);
                     
-                    // Aplicar chroma key effect
                     applyChromaKeyEffect(chromaPreviewCtx);
                     
-                    // Continuar animação
                     requestAnimationFrame(drawFrame);
                 } catch (error) {
                     console.error('Chroma preview error:', error);
@@ -1848,7 +1843,6 @@
             }
         }
 
-        // Resto das funções que estavam faltando
         function toggleCrop() {
             alert('Crop tool activated!\n\nDrag the corners of the video to crop it.\nPress Enter to apply or Escape to cancel.\n\nNote: This is a demo feature. In a full implementation, visual crop handles would appear.');
             cropBtn.classList.toggle('active');
@@ -2048,7 +2042,6 @@
 
         function captureAudioFromVideo() {
             try {
-                // Método moderno
                 if (videoPlayer.captureStream) {
                     const stream = videoPlayer.captureStream();
                     const audioTracks = stream.getAudioTracks();
@@ -2057,12 +2050,11 @@
                     }
                 }
                 
-                // Método alternativo com Web Audio API
                 if (audioContext) {
                     const source = audioContext.createMediaElementSource(videoPlayer);
                     const dest = audioContext.createMediaStreamDestination();
                     source.connect(dest);
-                    source.connect(audioContext.destination); // Para ouvir o áudio
+                    source.connect(audioContext.destination);
                     return dest.stream;
                 }
             } catch (error) {
@@ -2100,7 +2092,6 @@
             if (bgImage && applyChromaExport.checked) {
                 exportWithChromaKey(startTime, endTime);
             } else {
-                // Tentar exportação com áudio primeiro
                 exportWithAudio(startTime, endTime);
             }
         }

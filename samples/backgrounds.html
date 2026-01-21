@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Backgrounds for Chroma Key</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f0f2f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2b2d42;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            color: #495057;
+            line-height: 1.6;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #4361ee;
+        }
+        
+        .card-text {
+            color: #495057;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #4361ee;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #3a56d4;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .svg-preview {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SVG Backgrounds for Chroma Key</h1>
+            <p>These scalable vector graphics can be used as backgrounds after applying chroma key effects</p>
+        </header>
+        
+        <div class="grid">
+            <!-- 640x480 SVG -->
+            <div class="card">
+                <div class="preview-container">
+                    <svg class="svg-preview" width="640" height="480" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient640" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#667eea"/>
+                                <stop offset="100%" stop-color="#764ba2"/>
+                            </linearGradient>
+                            <pattern id="dots640" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <circle cx="10" cy="10" r="2" fill="#ffffff" opacity="0.2"/>
+                            </pattern>
+                        </defs>
+                        <rect width="640" height="480" fill="url(#bgGradient640)"/>
+                        <rect width="640" height="480" fill="url(#dots640)"/>
+                        <circle cx="320" cy="240" r="80" fill="#ffffff" opacity="0.1"/>
+                        <rect x="220" y="180" width="200" height="120" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+                    </svg>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">640×480 Background</h3>
+                    <p class="card-text">A subtle gradient background with geometric elements. Perfect for interviews or presentations.</p>
+                    <a href="#" class="btn" onclick="downloadSVG('640x480')">Download SVG</a>
+                </div>
+            </div>
+            
+            <!-- 1024x768 SVG -->
+            <div class="card">
+                <div class="preview-container">
+                    <svg class="svg-preview" width="1024" height="768" viewBox="0 0 1024 768" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient1024" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#f093fb"/>
+                                <stop offset="100%" stop-color="#f5576c"/>
+                            </linearGradient>
+                            <pattern id="grid1024" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+                            </pattern>
+                        </defs>
+                        <rect width="1024" height="768" fill="url(#bgGradient1024)"/>
+                        <rect width="1024" height="768" fill="url(#grid1024)"/>
+                        <ellipse cx="512" cy="384" rx="120" ry="80" fill="#ffffff" opacity="0.1"/>
+                        <polygon points="512,300 612,484 412,484" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+                    </svg>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">1024×768 Background</h3>
+                    <p class="card-text">Warm gradient with grid pattern. Ideal for professional settings and educational content.</p>
+                    <a href="#" class="btn" onclick="downloadSVG('1024x768')">Download SVG</a>
+                </div>
+            </div>
+            
+            <!-- 1280x720 SVG -->
+            <div class="card">
+                <div class="preview-container">
+                    <svg class="svg-preview" width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient1280" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#4facfe"/>
+                                <stop offset="100%" stop-color="#00f2fe"/>
+                            </linearGradient>
+                            <pattern id="lines1280" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                                <line x1="0" y1="0" x2="60" y2="60" stroke="#ffffff" stroke-width="1" opacity="0.15"/>
+                                <line x1="60" y1="0" x2="0" y2="60" stroke="#ffffff" stroke-width="1" opacity="0.15"/>
+                            </pattern>
+                        </defs>
+                        <rect width="1280" height="720" fill="url(#bgGradient1280)"/>
+                        <rect width="1280" height="720" fill="url(#lines1280)"/>
+                        <rect x="440" y="260" width="400" height="200" fill="#ffffff" opacity="0.1"/>
+                        <circle cx="640" cy="360" r="100" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+                    </svg>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">1280×720 Background</h3>
+                    <p class="card-text">Cool blue gradient with cross pattern. Great for modern presentations and tech content.</p>
+                    <a href="#" class="btn" onclick="downloadSVG('1280x720')">Download SVG</a>
+                </div>
+            </div>
+            
+            <!-- 1920x1080 SVG -->
+            <div class="card">
+                <div class="preview-container">
+                    <svg class="svg-preview" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient1920" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ffecd2"/>
+                                <stop offset="100%" stop-color="#fcb69f"/>
+                            </linearGradient>
+                            <pattern id="hexagons1920" x="0" y="0" width="100" height="87" patternUnits="userSpaceOnUse">
+                                <polygon points="50,0 93,25 93,75 50,100 7,75 7,25" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.15"/>
+                            </pattern>
+                        </defs>
+                        <rect width="1920" height="1080" fill="url(#bgGradient1920)"/>
+                        <rect width="1920" height="1080" fill="url(#hexagons1920)"/>
+                        <path d="M960,540 L1160,340 L760,340 Z" fill="#ffffff" opacity="0.1"/>
+                        <path d="M960,540 L1160,740 L760,740 Z" fill="#ffffff" opacity="0.1"/>
+                    </svg>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">1920×1080 Background</h3>
+                    <p class="card-text">Warm gradient with hexagonal pattern. Excellent for high-definition videos and professional productions.</p>
+                    <a href="#" class="btn" onclick="downloadSVG('1920x1080')">Download SVG</a>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>These SVG backgrounds are free to use in your chroma key projects.</p>
+            <p>Just click "Download SVG" and add them to your video editor.</p>
+        </footer>
+    </div>
+
+    <script>
+        function downloadSVG(resolution) {
+            let svgContent = '';
+            
+            switch(resolution) {
+                case '640x480':
+                    svgContent = `<svg width="640" height="480" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient640" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#667eea"/>
+                                <stop offset="100%" stop-color="#764ba2"/>
+                            </linearGradient>
+                            <pattern id="dots640" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <circle cx="10" cy="10" r="2" fill="#ffffff" opacity="0.2"/>
+                            </pattern>
+                        </defs>
+                        <rect width="640" height="480" fill="url(#bgGradient640)"/>
+                        <rect width="640" height="480" fill="url(#dots640)"/>
+                        <circle cx="320" cy="240" r="80" fill="#ffffff" opacity="0.1"/>
+                        <rect x="220" y="180" width="200" height="120" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+                    </svg>`;
+                    break;
+                    
+                case '1024x768':
+                    svgContent = `<svg width="1024" height="768" viewBox="0 0 1024 768" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient1024" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#f093fb"/>
+                                <stop offset="100%" stop-color="#f5576c"/>
+                            </linearGradient>
+                            <pattern id="grid1024" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+                            </pattern>
+                        </defs>
+                        <rect width="1024" height="768" fill="url(#bgGradient1024)"/>
+                        <rect width="1024" height="768" fill="url(#grid1024)"/>
+                        <ellipse cx="512" cy="384" rx="120" ry="80" fill="#ffffff" opacity="0.1"/>
+                        <polygon points="512,300 612,484 412,484" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+                    </svg>`;
+                    break;
+                    
+                case '1280x720':
+                    svgContent = `<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient1280" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#4facfe"/>
+                                <stop offset="100%" stop-color="#00f2fe"/>
+                            </linearGradient>
+                            <pattern id="lines1280" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                                <line x1="0" y1="0" x2="60" y2="60" stroke="#ffffff" stroke-width="1" opacity="0.15"/>
+                                <line x1="60" y1="0" x2="0" y2="60" stroke="#ffffff" stroke-width="1" opacity="0.15"/>
+                            </pattern>
+                        </defs>
+                        <rect width="1280" height="720" fill="url(#bgGradient1280)"/>
+                        <rect width="1280" height="720" fill="url(#lines1280)"/>
+                        <rect x="440" y="260" width="400" height="200" fill="#ffffff" opacity="0.1"/>
+                        <circle cx="640" cy="360" r="100" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+                    </svg>`;
+                    break;
+                    
+                case '1920x1080':
+                    svgContent = `<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGradient1920" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ffecd2"/>
+                                <stop offset="100%" stop-color="#fcb69f"/>
+                            </linearGradient>
+                            <pattern id="hexagons1920" x="0" y="0" width="100" height="87" patternUnits="userSpaceOnUse">
+                                <polygon points="50,0 93,25 93,75 50,100 7,75 7,25" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.15"/>
+                            </pattern>
+                        </defs>
+                        <rect width="1920" height="1080" fill="url(#bgGradient1920)"/>
+                        <rect width="1920" height="1080" fill="url(#hexagons1920)"/>
+                        <path d="M960,540 L1160,340 L760,340 Z" fill="#ffffff" opacity="0.1"/>
+                        <path d="M960,540 L1160,740 L760,740 Z" fill="#ffffff" opacity="0.1"/>
+                    </svg>`;
+                    break;
+            }
+            
+            // Create download link
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `background-${resolution}.svg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
