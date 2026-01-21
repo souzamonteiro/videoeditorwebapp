@@ -1075,6 +1075,68 @@
         let chromaPreviewCanvas = null;
         let chromaPreviewCtx = null;
 
+        function drawImageProp(ctx, img, x, y, w, h) {
+            const imgRatio = img.width / img.height;
+            const canvasRatio = w / h;
+            let drawWidth, drawHeight, drawX, drawY;
+
+            if (imgRatio > canvasRatio) {
+                // Image is wider than canvas
+                drawHeight = h;
+                drawWidth = drawHeight * imgRatio;
+                drawX = x + (w - drawWidth) / 2;
+                drawY = y;
+            } else {
+                // Image is taller than canvas
+                drawWidth = w;
+                drawHeight = drawWidth / imgRatio;
+                drawX = x;
+                drawY = y + (h - drawHeight) / 2;
+            }
+
+            ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+        }
+
+        function applyChromaKeyEffectForExport(ctx) {
+            if (!bgImage || !applyChromaExport.checked) {
+                return;
+            }
+            
+            const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const data = imageData.data;
+            
+            // Parse chroma color
+            const chromaR = parseInt(chromaColor.value.slice(1, 3), 16);
+            const chromaG = parseInt(chromaColor.value.slice(3, 5), 16);
+            const chromaB = parseInt(chromaColor.value.slice(5, 7), 16);
+            
+            const sensitivity = parseInt(chromaSensitivity.value) / 100 * 0.7;
+            const smoothness = parseInt(chromaSmoothness.value) / 100;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                const diff = Math.abs(r - chromaR) + Math.abs(g - chromaG) + Math.abs(b - chromaB);
+                const normalizedDiff = diff / 765;
+                
+                if (normalizedDiff < sensitivity) {
+                    const alpha = Math.min(1, (normalizedDiff / sensitivity) * (1 + smoothness));
+                    data[i + 3] = Math.floor(alpha * 255);
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Draw background image - FIXED VERSION
+            if (bgImage) {
+                ctx.globalCompositeOperation = 'destination-over';
+                drawImageProp(ctx, bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.globalCompositeOperation = 'source-over';
+            }
+        }
+
         // Initialize
         function init() {
             // Event listeners
@@ -1401,10 +1463,11 @@
             
             ctx.putImageData(imageData, 0, 0);
             
-            // Draw background image if chroma key is applied
+            // Draw background image if chroma key is applied - FIXED VERSION
             if (bgImage) {
                 ctx.globalCompositeOperation = 'destination-over';
-                ctx.drawImage(bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                // Use the aspect ratio-preserving function instead of direct drawImage
+                drawImageProp(ctx, bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
                 ctx.globalCompositeOperation = 'source-over';
             }
         }
@@ -1643,48 +1706,6 @@
                 }
             }
 
-            function applyChromaKeyEffectForExport(ctx) {
-                if (!bgImage || !applyChromaExport.checked) {
-                    return; // Não aplicar chroma key se não estiver habilitado
-                }
-                
-                const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-                const data = imageData.data;
-                
-                // Parse chroma color
-                const chromaR = parseInt(chromaColor.value.slice(1, 3), 16);
-                const chromaG = parseInt(chromaColor.value.slice(3, 5), 16);
-                const chromaB = parseInt(chromaColor.value.slice(5, 7), 16);
-                
-                const sensitivity = parseInt(chromaSensitivity.value) / 100 * 0.7; // Ajuste de sensibilidade
-                const smoothness = parseInt(chromaSmoothness.value) / 100;
-                
-                // Algoritmo otimizado para performance
-                for (let i = 0; i < data.length; i += 4) {
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-                    
-                    // Cálculo mais eficiente de diferença de cor
-                    const diff = Math.abs(r - chromaR) + Math.abs(g - chromaG) + Math.abs(b - chromaB);
-                    const normalizedDiff = diff / 765; // 255 * 3 = 765 (max difference)
-                    
-                    if (normalizedDiff < sensitivity) {
-                        const alpha = Math.min(1, (normalizedDiff / sensitivity) * (1 + smoothness));
-                        data[i + 3] = Math.floor(alpha * 255);
-                    }
-                }
-                
-                ctx.putImageData(imageData, 0, 0);
-                
-                // Draw background image
-                if (bgImage) {
-                    ctx.globalCompositeOperation = 'destination-over';
-                    ctx.drawImage(bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
-                    ctx.globalCompositeOperation = 'source-over';
-                }
-            }
-            
             setTimeout(captureFrame, 100);
             
             const checkEndTime = setInterval(() => {
