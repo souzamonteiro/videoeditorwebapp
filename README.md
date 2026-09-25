@@ -185,3 +185,13 @@ This program is available under the Apache 2.0 license.
 ---
 
 **Note**: This is a client-side application. All processing happens in your browser - no data is sent to external servers. Videos are processed locally and downloaded directly to your device.
+## Maia Reel visual theme
+
+The interface uses the shared Maia Reel dark theme in `www/maia-reel.css`,
+loaded after the app's layout styles. It is a local static asset: no CDN, build
+step or new server is needed. Media processing and user-selected video title
+styles remain under the original application code's control.
+
+The canonical stylesheet and deployment instructions are maintained in the
+sibling `maia-edge-apps-deployment` repository, in `themes/maia-reel.css` and
+`docs/MEDIA-THEME.md`. The PWA cache has a new version and is scoped to this app.
